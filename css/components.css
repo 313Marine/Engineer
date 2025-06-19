@@ -6,7 +6,7 @@
     box-shadow: 0 2px 4px var(--shadow-color);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1000; /* Ensure header is above editor controls but below modals/alerts */
 }
 
 .app-header .container {
@@ -20,6 +20,7 @@
     font-weight: 700;
     color: var(--primary-color);
     margin: 0;
+    font-family: var(--font-family-serif); /* Consistent font */
 }
 
 .main-nav a {
@@ -29,6 +30,7 @@
     border-bottom: 2px solid transparent;
     transition: color 0.3s ease, border-color 0.3s ease;
     color: var(--text-color);
+    font-family: var(--font-family-sans); /* Consistent font */
 }
 
 .main-nav a:hover,
@@ -41,25 +43,39 @@
 .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center; /* Center text/icon */
     gap: 0.5rem;
-    padding: 0.6rem 1.2rem;
+    padding: 0.75rem 1.25rem; /* Adjusted padding */
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: 5px; /* Standardized border-radius */
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 500; /* Standardized font-weight */
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s ease;
-    min-height: 36px;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+    min-height: 38px; /* Slightly adjusted min-height */
+    font-family: var(--font-family-sans);
 }
 
 .btn:hover:not(:disabled) {
-    transform: translateY(-2px);
+    transform: translateY(-1px); /* More subtle hover effect */
     box-shadow: 0 2px 5px var(--shadow-color);
 }
 
+.btn:active:not(:disabled) {
+    transform: translateY(0px); /* Remove transform on active */
+    box-shadow: 0 1px 2px var(--shadow-color); /* Less shadow on active */
+}
+
+.btn:focus-visible { /* Modern focus outline */
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+
 .btn:disabled {
     background-color: var(--border-color);
+    color: var(--text-color-light); /* Lighter text for disabled */
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -73,7 +89,7 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-    background-color: #16a085;
+    background-color: var(--accent-color-dark); /* Use variable for dark primary */
 }
 
 .btn-secondary {
@@ -82,6 +98,12 @@
     color: var(--text-color);
 }
 
+.btn-secondary:hover:not(:disabled) {
+    background-color: #f0f0f0; /* Slightly darken secondary on hover */
+    border-color: #cccccc;
+}
+
+
 .btn-danger {
     background-color: var(--danger-color);
     color: white;
@@ -89,7 +111,7 @@
 }
 
 .btn-danger:hover:not(:disabled) {
-    background-color: #c0392b;
+    background-color: var(--danger-color-dark);
 }
 
 .btn-add {
@@ -99,13 +121,23 @@
     color: var(--accent-color);
     border: 1px dashed var(--accent-color);
 }
+.btn-add:hover:not(:disabled) {
+    background-color: #dcf0dd;
+}
+
 
 button.btn-danger-text {
     background: transparent;
     color: var(--danger-color);
     border: none;
     padding: 0.2rem;
+    font-weight: 500; /* Consistent weight */
 }
+button.btn-danger-text:hover:not(:disabled) {
+    color: var(--danger-color-dark);
+    text-decoration: underline;
+}
+
 
 .card-btn {
     background: none;
@@ -113,6 +145,9 @@ button.btn-danger-text {
     border-radius: 5px;
     padding: 0.5rem;
     color: var(--text-color);
+}
+.card-btn:hover:not(:disabled) {
+    background-color: #f9f9f9;
 }
 
 .zoom-btn {
@@ -166,6 +201,7 @@ button.btn-danger-text {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-color);
+    font-family: var(--font-family-sans);
 }
 
 /* --- Forms & Controls --- */
@@ -184,6 +220,7 @@ button.btn-danger-text {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-family: var(--font-family-sans);
 }
 
 .drag-handle {
@@ -211,31 +248,49 @@ button.btn-danger-text {
     font-weight: 500;
     margin-bottom: 0.5rem;
     color: var(--text-color);
+    font-family: var(--font-family-sans);
 }
 
-.form-group input,
+/* Standardized input, textarea, select styles */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="url"],
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
+    padding: 0.75rem; /* Consistent padding */
+    border: 1px solid var(--border-color); /* Standardized border */
+    border-radius: 5px; /* Standardized border-radius */
     font-size: 1rem;
     font-family: var(--font-family-sans);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background-color: #fff;
     -webkit-appearance: none;
     -moz-appearance: none;
-    appearance: none;
+    appearance: none; /* Remove default styling for select on some browsers */
 }
 
-.form-group input:focus,
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="tel"]:focus,
+.form-group input[type="url"]:focus,
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+    border-color: var(--accent-color); /* Clearer focus border */
+    box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2); /* Subtle box-shadow */
 }
+
+/* Specific style for select to indicate it's a dropdown */
+.form-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.2em;
+    padding-right: 2.5rem; /* Make space for arrow */
+}
+
 
 .form-group textarea {
     resize: vertical;
@@ -296,33 +351,48 @@ button.btn-danger-text {
 .save-indicator {
     color: var(--text-color-light);
     font-size: 0.9rem;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease, color 0.5s ease; /* Added color transition */
     opacity: 0;
+    font-family: var(--font-family-sans);
 }
 
 .save-indicator.visible {
     opacity: 1;
 }
 
+.save-indicator.saving {
+    color: var(--accent-color);
+}
+
+.save-indicator.just-saved {
+    color: var(--accent-color);
+    font-weight: 500; /* Slightly less bold than previous bold */
+}
+
+
 /* --- Modal & Alert Styles --- */
 .alert {
     position: fixed;
-    bottom: 20px;
+    top: 20px; /* Start position for animation */
     left: 50%;
     transform: translateX(-50%);
     padding: 1rem 1.5rem;
-    border-radius: 8px;
-    color: white;
-    z-index: 3000;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border-radius: 6px; /* Standardized border-radius */
+    box-shadow: 0 4px 12px var(--shadow-color); /* Enhanced shadow */
+    z-index: 1050; /* Ensure above header */
+    font-size: 0.95rem;
+    opacity: 0; /* Start hidden for animation */
+    animation: alert-fade-in-out 4s ease-in-out forwards;
+    font-family: var(--font-family-sans);
 }
 
-.alert-danger {
-    background-color: var(--danger-color);
-}
+.alert-success { background-color: var(--accent-color); color: white; }
+.alert-danger { background-color: var(--danger-color); color: white; }
+.alert-warning { background-color: var(--warning-color); color: var(--text-color); } /* Ensure text is readable */
 
-.alert-success {
-    background-color: var(--accent-color);
+@keyframes alert-fade-in-out {
+    0%, 100% { opacity: 0; top: 0px; } /* Fade out by moving up */
+    10%, 90% { opacity: 1; top: 20px; } /* Fade in and stay */
 }
 
 .modal-overlay {
@@ -331,34 +401,87 @@ button.btn-danger-text {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
+    background-color: rgba(0, 0, 0, 0.6); /* Using background-color */
+    display: none; /* Initial state */
+    align-items: center; /* For centering content */
+    justify-content: center; /* For centering content */
+    z-index: 2000; /* Above alerts */
 }
 
 .modal-overlay.visible {
-    display: flex;
+    display: flex; /* Use flex to show and center */
 }
 
 .modal-content {
-    background: white;
+    background: var(--background-color); /* Use CSS variable */
     padding: 2rem;
-    border-radius: 8px;
-    max-width: 500px;
-    width: 90%;
-    position: relative;
+    border-radius: 8px; /* Slightly larger radius */
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 600px; /* Standardized max-width */
+    position: relative;
+    font-family: var(--font-family-sans);
+}
+
+.modal-body { /* To be applied to the direct child that needs scrolling */
+    overflow-y: auto;
+    max-height: 70vh; /* Max height for scrollability */
 }
 
 .modal-close-btn {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 1rem; /* Adjusted positioning */
+    right: 1rem; /* Adjusted positioning */
+    font-size: 1.5rem;
     background: none;
     border: none;
-    font-size: 1.5rem;
     cursor: pointer;
     color: var(--text-color-light);
+    transition: color 0.2s ease;
+}
+.modal-close-btn:hover {
+    color: var(--text-color);
+}
+
+
+/* --- Input Field Error Styling --- */
+.error-message {
+    color: var(--danger-color);
+    font-size: 0.8em;
+    display: block;
+    margin-top: 4px;
+    font-family: var(--font-family-sans);
+}
+
+.input-error {
+    border-color: var(--danger-color) !important;
+}
+
+/* --- PDF Generation Specific Styles --- */
+/* Styles for the main editor preview container when PDF is being generated */
+#editor-preview.pdf-generating-preview {
+    box-shadow: none !important;
+    border: none !important;
+    transform: scale(1) !important; /* Reset any editor scaling */
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important; /* Ensure all content is captured */
+}
+
+/* Styles for the CV content itself within the preview when PDF is generating */
+/* The .cv-preview is the direct child of #editor-preview that holds the actual CV content */
+#editor-preview.pdf-generating-preview .cv-preview {
+    transform: scale(1) !important; /* Override any specific editor zoom on the CV element itself */
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    /* The html2pdf options will handle page size (A4), so explicit width/height here might conflict.
+       Ensure it uses its natural dimensions or dimensions set by its template for A4. */
+    width: var(--preview-width) !important; /* This should be equivalent to A4 in pixels at html2canvas scale */
+    max-width: var(--preview-width) !important; /* Ensure it doesn't exceed this */
+    height: auto !important;
+    overflow: visible !important; /* Ensure all content is captured */
+    background-color: #ffffff !important; /* Ensure white background, templates might have transparent */
 }

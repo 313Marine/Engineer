@@ -115,18 +115,25 @@ const editor = {
     showAutoSaveIndicator() {
         const indicator = this.saveIndicator;
         if (indicator) {
-            const originalText = indicator.textContent;
-            indicator.textContent = 'Auto-gemt';
-            indicator.classList.add('visible');
+            const originalText = 'Alle ændringer er gemt'; // Default "saved" text
+            indicator.textContent = 'Auto-gemmer...'; // Indicate saving is in progress
+            indicator.classList.add('visible', 'saving');
             setTimeout(() => {
-                indicator.textContent = originalText;
-                indicator.classList.remove('visible');
-            }, 2000);
+                indicator.textContent = 'Auto-gemt ✓';
+                indicator.classList.remove('saving');
+                indicator.classList.add('just-saved');
+                setTimeout(() => {
+                    indicator.textContent = originalText;
+                    indicator.classList.remove('visible', 'just-saved');
+                }, 2000); // Show "Auto-saved ✓" for 2s
+            }, 500); // Simulate save time
         }
     },
 
     showSaveIndicator() {
         this.saveIndicator.classList.add('visible');
+        // Ensure text is "Alle ændringer er gemt" for manual save
+        this.saveIndicator.textContent = 'Alle ændringer er gemt';
         setTimeout(() => this.saveIndicator.classList.remove('visible'), 2000);
     },
 
@@ -140,6 +147,9 @@ const editor = {
 
     renderPersonalDetailsControl(data) {
         const photoPos = data.photoPosition || { x: 50, y: 50 };
+        // Correctly toggle visibility of photo instructions
+        const photoInstructionsHTML = data.photo ? `<p class="photo-instructions">Klik og træk på billedet for at justere.</p>` : '';
+
         return `<div class="form-section">
             <div class="form-section-header">
                 <span>Personlige Oplysninger</span>
@@ -147,10 +157,10 @@ const editor = {
             <div class="form-section-content">
                 <div class="photo-upload-container">
                     <div id="photo-preview-box" class="photo-preview ${data.photo ? 'has-photo' : ''}" style="background-image: url(${data.photo || 'none'}); background-position: ${photoPos.x}% ${photoPos.y}%;"></div>
-                    ${data.photo ? `<p class="photo-instructions">Klik og træk på billedet for at justere.</p>` : ''}
+                    ${photoInstructionsHTML}
                     <label class="btn btn-secondary file-input-label">
                         <i class="fas fa-upload"></i> Vælg Billede
-                        <input type="file" data-action="upload-photo" accept="image/*">
+                        <input type="file" data-action="upload-photo" accept="image/jpeg,image/png,image/gif,image/webp">
                     </label>
                     ${data.photo ? `<button class="btn-danger-text" data-action="remove-photo"><i class="fas fa-trash"></i> Fjern Billede</button>` : ''}
                 </div>
@@ -356,19 +366,23 @@ const editor = {
     },
 
     renderCvPreview() {
-        const { templateId, personalDetails } = this.doc.content;
+        const { templateId } = this.doc.content;
         this.previewContainer.className = `editor-preview cv-preview ${templateId}`;
+        const previewHTML = this.generateCvPreviewHTML(this.doc.content, templateId);
+        this.previewContainer.innerHTML = previewHTML;
+    },
 
+    generateCvPreviewHTML(cvContent, templateId) {
+        const { personalDetails } = cvContent;
         const photoPos = personalDetails.photoPosition || { x: 50, y: 50 };
         const photoStyle = `background-image: url('${personalDetails.photo}'); background-position: ${photoPos.x}% ${photoPos.y}%;`;
         const photoHTML = personalDetails.photo ? `<div class="cv-photo-container"><div class="cv-photo" style="${photoStyle}"></div></div>` : '';
 
         const contactHTML = this.getContactHTML(personalDetails);
-        const allSectionsHTML = (this.doc.content.sectionOrder || []).map(key => this.renderCvPreviewSection(key, this.doc.content[key])).join('');
+        const allSectionsHTML = (cvContent.sectionOrder || []).map(key => this.renderCvPreviewSection(key, cvContent[key])).join('');
 
         let previewHTML = '';
 
-        // This switch statement is rewritten to be robust and handle each template correctly.
         switch (templateId) {
             case 'modern-cv':
             case 'executive-cv':
@@ -387,11 +401,10 @@ const editor = {
             case 'startup-cv':
             case 'luxury-cv':
             case 'international-cv': {
-                const sidebarKeys = (this.doc.content.sectionOrder || []).filter(k => ['skills', 'languages'].includes(k));
-                const mainKeys = (this.doc.content.sectionOrder || []).filter(k => !['skills', 'languages'].includes(k));
-
-                const sidebarSectionsHTML = sidebarKeys.map(key => this.renderCvPreviewSection(key, this.doc.content[key])).join('');
-                const mainSectionsHTML = mainKeys.map(key => this.renderCvPreviewSection(key, this.doc.content[key])).join('');
+                const sidebarKeys = (cvContent.sectionOrder || []).filter(k => ['skills', 'languages'].includes(k));
+                const mainKeys = (cvContent.sectionOrder || []).filter(k => !['skills', 'languages'].includes(k));
+                const sidebarSectionsHTML = sidebarKeys.map(key => this.renderCvPreviewSection(key, cvContent[key])).join('');
+                const mainSectionsHTML = mainKeys.map(key => this.renderCvPreviewSection(key, cvContent[key])).join('');
 
                 previewHTML = `
                     ${templateId === 'minimalist-cv' ? photoHTML : ''}
@@ -412,7 +425,6 @@ const editor = {
                     </div>`;
                 break;
             }
-
             case 'creative-cv':
                 previewHTML = `
                    <div class="cv-header-background"></div>
@@ -426,13 +438,11 @@ const editor = {
                        <main class="cv-main-content">${allSectionsHTML}</main>
                    </div>`;
                 break;
-
             case 'professional-cv': {
-                const sidebarKeys = (this.doc.content.sectionOrder || []).filter(k => ['skills', 'languages'].includes(k));
-                const mainKeys = (this.doc.content.sectionOrder || []).filter(k => !['skills', 'languages'].includes(k));
-
-                const sidebarSectionsHTML = sidebarKeys.map(key => this.renderCvPreviewSection(key, this.doc.content[key])).join('');
-                const mainSectionsHTML = mainKeys.map(key => this.renderCvPreviewSection(key, this.doc.content[key])).join('');
+                const sidebarKeys = (cvContent.sectionOrder || []).filter(k => ['skills', 'languages'].includes(k));
+                const mainKeys = (cvContent.sectionOrder || []).filter(k => !['skills', 'languages'].includes(k));
+                const sidebarSectionsHTML = sidebarKeys.map(key => this.renderCvPreviewSection(key, cvContent[key])).join('');
+                const mainSectionsHTML = mainKeys.map(key => this.renderCvPreviewSection(key, cvContent[key])).join('');
 
                 previewHTML = `
                     <div class="cv-layout-sidebar">
@@ -451,13 +461,11 @@ const editor = {
                     </div>`;
                 break;
             }
-
             case 'corporate-cv': {
-                const sidebarKeys = (this.doc.content.sectionOrder || []).filter(k => ['skills', 'languages'].includes(k));
-                const mainKeys = (this.doc.content.sectionOrder || []).filter(k => !['skills', 'languages'].includes(k));
-
-                const sidebarSectionsHTML = sidebarKeys.map(key => this.renderCvPreviewSection(key, this.doc.content[key])).join('');
-                const mainSectionsHTML = mainKeys.map(key => this.renderCvPreviewSection(key, this.doc.content[key])).join('');
+                const sidebarKeys = (cvContent.sectionOrder || []).filter(k => ['skills', 'languages'].includes(k));
+                const mainKeys = (cvContent.sectionOrder || []).filter(k => !['skills', 'languages'].includes(k));
+                const sidebarSectionsHTML = sidebarKeys.map(key => this.renderCvPreviewSection(key, cvContent[key])).join('');
+                const mainSectionsHTML = mainKeys.map(key => this.renderCvPreviewSection(key, cvContent[key])).join('');
 
                 previewHTML = `
                     <header class="cv-header">
@@ -476,13 +484,11 @@ const editor = {
                     </div>`;
                 break;
             }
-
             default:
                 previewHTML = `<div>Template not found or configured: ${templateId}</div>`;
                 break;
         }
-
-        this.previewContainer.innerHTML = previewHTML;
+        return previewHTML;
     },
 
     renderCvPreviewSection(key, data) {
@@ -527,6 +533,21 @@ const editor = {
         </section>`;
     },
 
+    _displayFieldError(inputElement, message) {
+        let errorSpan = inputElement.nextElementSibling;
+        if (errorSpan && errorSpan.classList.contains('error-message')) {
+            // Error span already exists
+        } else {
+            // Create new error span
+            errorSpan = document.createElement('span');
+            errorSpan.classList.add('error-message');
+            inputElement.parentNode.insertBefore(errorSpan, inputElement.nextSibling);
+        }
+        errorSpan.textContent = message;
+        errorSpan.style.display = message ? 'block' : 'none'; // Show/hide
+        inputElement.classList.toggle('input-error', !!message); // Add/remove error class on input
+    },
+
     updateZoomControls() {
         const zoomLevelElement = document.getElementById('zoom-level');
         const zoomInBtn = document.getElementById('zoom-in-btn');
@@ -535,12 +556,10 @@ const editor = {
         if (zoomLevelElement) {
             zoomLevelElement.textContent = `${this.currentZoom}%`;
         }
-
         if (zoomInBtn) {
             const maxZoom = Math.max(...this.zoomLevels);
             zoomInBtn.disabled = this.currentZoom >= maxZoom;
         }
-
         if (zoomOutBtn) {
             const minZoom = Math.min(...this.zoomLevels);
             zoomOutBtn.disabled = this.currentZoom <= minZoom;
@@ -572,6 +591,53 @@ const editor = {
         }
     },
 
+    handleDownloadPdf() {
+        const downloadBtn = document.getElementById('download-pdf-btn');
+        const originalBtnText = downloadBtn.innerHTML; // Store full HTML content to preserve icon
+
+        downloadBtn.disabled = true;
+        downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Genererer PDF...`;
+
+        const element = this.previewContainer;
+        const filename = `${this.doc.title || 'cv'}.pdf`;
+
+        element.classList.add('pdf-generating-preview');
+
+        const opt = {
+            margin: [5, 5, 5, 5], // mm [top, left, bottom, right]
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                logging: false,
+                dpi: 192,
+                letterRendering: true,
+                useCORS: true
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().from(element).set(opt).save()
+            .then(() => {
+                element.classList.remove('pdf-generating-preview');
+                // ui.showAlert('PDF downloaded successfully!', 'success'); // Optional
+            })
+            .catch((error) => {
+                element.classList.remove('pdf-generating-preview');
+                console.error('PDF generation error:', error);
+                ui.showAlert('Der opstod en fejl under PDF-generering. Prøv venligst igen.', 'danger');
+            })
+            .finally(() => { // Re-enable button and restore text in both cases
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = originalBtnText;
+            });
+    },
+
     attachEventListeners() {
         if (this.eventController) {
             this.eventController.abort();
@@ -579,12 +645,15 @@ const editor = {
         this.eventController = new AbortController();
         const signal = this.eventController.signal;
 
+        // Event listener for controls container (inputs, item add/remove etc.)
         let inputTimeout;
         this.controlsContainer.addEventListener('input', (e) => {
             clearTimeout(inputTimeout);
             const target = e.target;
             inputTimeout = setTimeout(() => {
                 const { path, list, field } = target.dataset;
+                let isValid = true;
+
                 if (path) {
                     const keys = path.split('.');
                     let current = this.doc.content;
@@ -593,6 +662,18 @@ const editor = {
                         current = current[keys[i]];
                     }
                     current[keys[keys.length - 1]] = target.value;
+
+                    if (path === 'personalDetails.email') {
+                        const emailRegex = /^\S+@\S+\.\S+$/;
+                        isValid = emailRegex.test(target.value);
+                        this._displayFieldError(target, isValid ? '' : 'Ugyldig email-adresse');
+                    } else if (path === 'personalDetails.linkedin') {
+                        isValid = (!target.value || ((target.value.startsWith('https://') || target.value.startsWith('http://')) && target.value.includes('linkedin.com')));
+                        this._displayFieldError(target, isValid ? '' : 'Ugyldig LinkedIn URL (skal starte med http(s):// og indeholde linkedin.com)');
+                    } else {
+                         this._displayFieldError(target, '');
+                    }
+
                 } else if (list) {
                     const listItem = target.closest('.list-item');
                     if (listItem) {
@@ -601,6 +682,7 @@ const editor = {
                         if (item) item[field] = target.value;
                     }
                 }
+
                 this.markUnsaved();
                 this.renderCvPreview();
             }, 300);
@@ -609,41 +691,51 @@ const editor = {
         this.controlsContainer.addEventListener('click', (e) => {
             const button = e.target.closest('[data-action]');
             if (!button) return;
-
             const { action, listName, id } = button.dataset;
 
             if (action === 'add-item') {
                 const newItem = { id: `item_${Math.random().toString(36).substr(2, 9)}` };
-                if (!this.doc.content[listName].items) {
-                    this.doc.content[listName].items = [];
-                }
+                if (!this.doc.content[listName].items) this.doc.content[listName].items = [];
                 this.doc.content[listName].items.push(newItem);
+                this.markUnsaved();
                 this.saveAndUpdate();
                 this.render();
             } else if (action === 'remove-item') {
                 this.doc.content[listName].items = this.doc.content[listName].items.filter(i => i.id !== id);
+                this.markUnsaved();
                 this.saveAndUpdate();
                 this.render();
             } else if (action === 'remove-photo') {
                 this.doc.content.personalDetails.photo = null;
+                this.markUnsaved();
                 this.saveAndUpdate();
                 this.render();
             }
         }, { signal });
 
         this.controlsContainer.addEventListener('change', (e) => {
-            if (e.target.closest('[data-action="upload-photo"]') && e.target.files[0]) {
+            const inputElement = e.target.closest('[data-action="upload-photo"]');
+            if (inputElement && inputElement.files[0]) {
+                const file = inputElement.files[0];
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    ui.showAlert('Unsupported file type. Please choose a JPG, PNG, GIF, or WEBP image.', 'danger');
+                    inputElement.value = '';
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     this.doc.content.personalDetails.photo = event.target.result;
                     this.doc.content.personalDetails.photoPosition = { x: 50, y: 50 };
+                    this.markUnsaved();
                     this.saveAndUpdate();
                     this.render();
                 };
-                reader.readAsDataURL(e.target.files[0]);
+                reader.readAsDataURL(file);
             }
         }, { signal });
 
+        // Title input
         let titleTimeout;
         this.titleInput.addEventListener('input', (e) => {
             clearTimeout(titleTimeout);
@@ -653,6 +745,7 @@ const editor = {
             }, 300);
         }, { signal });
 
+        // Photo positioning drag
         let isDragging = false;
         let startX, startY, startPosX, startPosY;
         this.controlsContainer.addEventListener('mousedown', (e) => {
@@ -678,14 +771,12 @@ const editor = {
                 let newY = startPosY + dy * sensitivity;
                 newX = Math.max(0, Math.min(100, newX));
                 newY = Math.max(0, Math.min(100, newY));
-
                 this.doc.content.personalDetails.photoPosition = { x: newX, y: newY };
-
+                this.renderCvPreview();
                 const photoBox = this.controlsContainer.querySelector('#photo-preview-box');
-                if (photoBox) {
+                 if (photoBox) {
                     photoBox.style.backgroundPosition = `${newX}% ${newY}%`;
                 }
-                this.renderCvPreview();
             }
         }, { signal });
 
@@ -694,10 +785,12 @@ const editor = {
                 isDragging = false;
                 const photoBox = this.controlsContainer.querySelector('#photo-preview-box');
                 if (photoBox) photoBox.style.cursor = 'move';
+                this.markUnsaved();
                 this.saveAndUpdate();
             }
         }, { signal });
 
+        // Section drag-and-drop
         let draggedItem = null;
         this.controlsContainer.addEventListener('dragstart', (e) => {
             if (e.target.classList.contains('form-section')) {
@@ -729,9 +822,16 @@ const editor = {
                 draggedItem.classList.remove('dragging');
                 const newOrder = [...this.controlsContainer.querySelectorAll('.form-section[data-section-key]')].map(s => s.dataset.sectionKey);
                 this.doc.content.sectionOrder = newOrder;
+                this.markUnsaved();
                 this.saveAndUpdate();
                 draggedItem = null;
             }
         }, { signal });
+
+        // PDF Download Button
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        if (downloadPdfBtn) {
+            downloadPdfBtn.addEventListener('click', this.handleDownloadPdf.bind(this), { signal: this.eventController.signal });
+        }
     }
 };
