@@ -245,3 +245,153 @@
     overflow: hidden;
     box-sizing: border-box;
 }
+
+
+/* --- Print Specific Styles --- */
+body.print-cv-active .app-header,
+body.print-cv-active .main-nav, /* Redundant if app-header is hidden, but good for clarity */
+body.print-cv-active .dashboard-header,
+body.print-cv-active #dashboard-view > *:not(#editor-view), /* Hides dashboard elements if editor somehow embedded */
+body.print-cv-active #templates-view,
+body.print-cv-active #editor-view .editor-header,
+body.print-cv-active #editor-view #editor-controls,
+body.print-cv-active .modal-overlay, /* Hide any open modals */
+body.print-cv-active .alert, /* Hide any visible alerts */
+body.print-cv-active .template-preview-toggle /* Hide template view specific controls */
+ {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+body.print-cv-active #editor-layout,
+body.print-cv-active .editor-preview-container,
+body.print-cv-active #editor-preview {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: #ffffff !important; /* Ensure editor area itself is white */
+}
+
+/*
+   The #editor-preview.pdf-generating-preview styles in components.css already handle:
+   - transform: scale(1) !important; (JS sets this to 100% zoom for print too)
+   - margin: 0 !important;
+   - box-shadow: none !important;
+   - border-radius: 0 !important;
+   - border: none !important;
+   - width: var(--preview-width) !important; (This might need adjustment for print)
+   - max-width: var(--preview-width) !important;
+   - height: auto !important;
+   - overflow: visible !important;
+   - background-color: #ffffff !important;
+*/
+
+/* Ensure the #editor-preview takes full width for print, overriding var(--preview-width) if it's too narrow */
+body.print-cv-active #editor-preview.pdf-generating-preview {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* The .cv-preview styles within #editor-preview.pdf-generating-preview from components.css should mostly apply.
+   We just need to ensure it's centered if its own template styles make it narrower than 100%. */
+body.print-cv-active #editor-preview.pdf-generating-preview .cv-preview {
+    margin: 0 auto !important; /* Center the CV content if it has its own max-width */
+    /* Other styles like padding, border, shadow are already reset by .pdf-generating-preview .cv-preview */
+}
+
+
+@media print {
+    /* Hide common non-content elements more broadly */
+    .app-header,
+    .main-nav,
+    .editor-header,
+    #editor-controls,
+    .dashboard-header,
+    .templates-header,
+    .editor-actions, /* Contains print, pdf, focus buttons */
+    .zoom-controls,
+    #save-indicator,
+    .modal-overlay,
+    .alert,
+    .template-preview-toggle,
+    .document-card .actions button, /* Hide action buttons on dashboard cards when printing dashboard */
+    .btn-add, /* Hide "Tilføj" buttons within sections */
+    button.btn-danger-text /* Hide "Fjern X" buttons within list items */
+     {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    body, html {
+        background-color: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important; /* Ensure full width for printing */
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Ensure all views except the active editor view are hidden */
+    .view:not(.active),
+    #dashboard-view:not(#editor-view), /* If dashboard is somehow active but we are printing from editor */
+    #templates-view:not(#editor-view) /* If template view is somehow active */
+     {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+
+    #editor-view,
+    #editor-layout,
+    .editor-preview-container,
+    #editor-preview {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    #editor-preview,
+    #editor-preview .cv-preview { /* Apply to both to be sure */
+        max-width: 100% !important;
+        width: 100% !important; /* Ensure it uses full printable width */
+        transform: none !important; /* Reset any scaling */
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background-color: #ffffff !important;
+    }
+
+    /* General good practice for print */
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+    p, ul, ol, blockquote, .cv-section {
+        page-break-inside: avoid;
+    }
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+    a {
+        text-decoration: none; /* Avoid underlining links in print unless desired */
+        color: inherit; /* Use surrounding text color for links */
+    }
+    /* Remove any transforms from the preview itself if they exist from editor view */
+    .cv-preview {
+        transform: none !important;
+    }
+}
