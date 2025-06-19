@@ -63,12 +63,13 @@ const editor = {
 
         // Set default zoom based on screen size
         if (window.innerWidth <= 768) {
-            this.setZoom(75); // 75% zoom for tablets and mobile
+            this.setZoom(75);
         } else if (window.innerWidth <= 480) {
-            this.setZoom(50); // 50% zoom for small mobile screens
+            this.setZoom(50);
         } else {
-            this.updateZoomControls();
+            this.updateZoomControls(); // Ensure controls are updated if no specific zoom is set
         }
+        this.setZoom(this.currentZoom); // Apply initial or default zoom to preview
     },
 
     render() {
@@ -93,7 +94,7 @@ const editor = {
             if (this.hasUnsavedChanges && this.doc) {
                 this.autoSave();
             }
-        }, 10000); // Auto-save every 10 seconds
+        }, 10000);
     },
 
     stopAutoSave() {
@@ -115,8 +116,8 @@ const editor = {
     showAutoSaveIndicator() {
         const indicator = this.saveIndicator;
         if (indicator) {
-            const originalText = 'Alle ændringer er gemt'; // Default "saved" text
-            indicator.textContent = 'Auto-gemmer...'; // Indicate saving is in progress
+            const originalText = 'Alle ændringer er gemt';
+            indicator.textContent = 'Auto-gemmer...';
             indicator.classList.add('visible', 'saving');
             setTimeout(() => {
                 indicator.textContent = 'Auto-gemt ✓';
@@ -125,14 +126,13 @@ const editor = {
                 setTimeout(() => {
                     indicator.textContent = originalText;
                     indicator.classList.remove('visible', 'just-saved');
-                }, 2000); // Show "Auto-saved ✓" for 2s
-            }, 500); // Simulate save time
+                }, 2000);
+            }, 500);
         }
     },
 
     showSaveIndicator() {
         this.saveIndicator.classList.add('visible');
-        // Ensure text is "Alle ændringer er gemt" for manual save
         this.saveIndicator.textContent = 'Alle ændringer er gemt';
         setTimeout(() => this.saveIndicator.classList.remove('visible'), 2000);
     },
@@ -147,7 +147,6 @@ const editor = {
 
     renderPersonalDetailsControl(data) {
         const photoPos = data.photoPosition || { x: 50, y: 50 };
-        // Correctly toggle visibility of photo instructions
         const photoInstructionsHTML = data.photo ? `<p class="photo-instructions">Klik og træk på billedet for at justere.</p>` : '';
 
         return `<div class="form-section">
@@ -162,7 +161,7 @@ const editor = {
                         <i class="fas fa-upload"></i> Vælg Billede
                         <input type="file" data-action="upload-photo" accept="image/jpeg,image/png,image/gif,image/webp">
                     </label>
-                    ${data.photo ? `<button class="btn-danger-text" data-action="remove-photo"><i class="fas fa-trash"></i> Fjern Billede</button>` : ''}
+                    ${data.photo ? `<button class="btn-danger-text" data-action="remove-photo" aria-label="Fjern billede"><i class="fas fa-trash"></i> Fjern Billede</button>` : ''}
                 </div>
                 <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border-color);">
                 <div class="form-group">
@@ -203,7 +202,7 @@ const editor = {
             </div>`;
         } else if (['experience', 'education', 'skills', 'languages', 'courses', 'volunteerWork'].includes(key)) {
             contentHtml = (data.items || []).map(item => this.renderListItemForm(key, item)).join('') +
-                `<button class="btn btn-add" data-action="add-item" data-list-name="${key}">
+                `<button class="btn btn-add" data-action="add-item" data-list-name="${key}" aria-label="Tilføj element til ${data.title}">
                     <i class="fas fa-plus"></i> Tilføj
                 </button>`;
         }
@@ -219,6 +218,8 @@ const editor = {
 
     renderListItemForm(listName, item) {
         const id = item.id;
+        const removeLabelPrefix = `Fjern ${listName.replace(/([A-Z])/g, ' $1').toLowerCase()} element: `;
+
 
         if (listName === 'experience') {
             return `<div class="list-item" data-id="${id}">
@@ -244,7 +245,7 @@ const editor = {
                     <label>Beskrivelse</label>
                     <textarea data-list="experience" data-field="description" rows="4">${item.description || ''}</textarea>
                 </div>
-                <button class="btn-danger-text" data-action="remove-item" data-list-name="experience" data-id="${id}">
+                <button class="btn-danger-text" data-action="remove-item" data-list-name="experience" data-id="${id}" aria-label="${removeLabelPrefix}${item.jobTitle || 'uden titel'}">
                     <i class="fas fa-trash"></i> Fjern Erfaring
                 </button>
             </div>`;
@@ -270,7 +271,7 @@ const editor = {
                         <input type="text" data-list="education" data-field="endDate" value="${item.endDate || ''}" placeholder="Eks. Dec 2022">
                     </div>
                 </div>
-                <button class="btn-danger-text" data-action="remove-item" data-list-name="education" data-id="${id}">
+                <button class="btn-danger-text" data-action="remove-item" data-list-name="education" data-id="${id}" aria-label="${removeLabelPrefix}${item.degree || 'uden titel'}">
                     <i class="fas fa-trash"></i> Fjern Uddannelse
                 </button>
             </div>`;
@@ -291,7 +292,7 @@ const editor = {
                         </select>
                     </div>
                 </div>
-                <button class="btn-danger-text" data-action="remove-item" data-list-name="languages" data-id="${id}">
+                <button class="btn-danger-text" data-action="remove-item" data-list-name="languages" data-id="${id}" aria-label="${removeLabelPrefix}${item.language || 'uden titel'}">
                     <i class="fas fa-trash"></i> Fjern Sprog
                 </button>
             </div>`;
@@ -303,7 +304,7 @@ const editor = {
                     <label>Kompetence</label>
                     <input type="text" data-list="skills" data-field="skill" value="${item.skill || ''}">
                 </div>
-                <button class="btn-danger-text" data-action="remove-item" data-list-name="skills" data-id="${id}">
+                <button class="btn-danger-text" data-action="remove-item" data-list-name="skills" data-id="${id}" aria-label="${removeLabelPrefix}${item.skill || 'uden titel'}">
                     <i class="fas fa-trash"></i> Fjern Kompetence
                 </button>
             </div>`;
@@ -315,7 +316,7 @@ const editor = {
                     <label>Kursus/Certifikat</label>
                     <input type="text" data-list="courses" data-field="courseName" value="${item.courseName || ''}">
                 </div>
-                <button class="btn-danger-text" data-action="remove-item" data-list-name="courses" data-id="${id}">
+                <button class="btn-danger-text" data-action="remove-item" data-list-name="courses" data-id="${id}" aria-label="${removeLabelPrefix}${item.courseName || 'uden titel'}">
                     <i class="fas fa-trash"></i> Fjern Kursus
                 </button>
             </div>`;
@@ -345,7 +346,7 @@ const editor = {
                     <label>Beskrivelse</label>
                     <textarea data-list="volunteerWork" data-field="description" rows="4">${item.description || ''}</textarea>
                 </div>
-                <button class="btn-danger-text" data-action="remove-item" data-list-name="volunteerWork" data-id="${id}">
+                <button class="btn-danger-text" data-action="remove-item" data-list-name="volunteerWork" data-id="${id}" aria-label="${removeLabelPrefix}${item.role || 'uden titel'}">
                     <i class="fas fa-trash"></i> Fjern Frivilligt Arbejde
                 </button>
             </div>`;
@@ -591,9 +592,25 @@ const editor = {
         }
     },
 
+    handlePrint() {
+        // Add a class to the body for print-specific styles from cv-templates.css
+        document.body.classList.add('print-active');
+        this.previewContainer.classList.add('pdf-generating-preview'); // Use same class as PDF for consistency
+
+        const originalZoom = this.currentZoom;
+        this.setZoom(100);
+
+        setTimeout(() => {
+            window.print();
+            this.setZoom(originalZoom);
+            this.previewContainer.classList.remove('pdf-generating-preview');
+            document.body.classList.remove('print-active');
+        }, 100);
+    },
+
     handleDownloadPdf() {
         const downloadBtn = document.getElementById('download-pdf-btn');
-        const originalBtnText = downloadBtn.innerHTML; // Store full HTML content to preserve icon
+        const originalBtnHTML = downloadBtn.innerHTML;
 
         downloadBtn.disabled = true;
         downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Genererer PDF...`;
@@ -601,41 +618,46 @@ const editor = {
         const element = this.previewContainer;
         const filename = `${this.doc.title || 'cv'}.pdf`;
 
+        const originalZoom = this.currentZoom;
+        this.setZoom(100);
         element.classList.add('pdf-generating-preview');
 
-        const opt = {
-            margin: [5, 5, 5, 5], // mm [top, left, bottom, right]
-            filename: filename,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                logging: false,
-                dpi: 192,
-                letterRendering: true,
-                useCORS: true
-            },
-            jsPDF: {
-                unit: 'mm',
-                format: 'a4',
-                orientation: 'portrait'
-            },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
 
-        html2pdf().from(element).set(opt).save()
-            .then(() => {
-                element.classList.remove('pdf-generating-preview');
-                // ui.showAlert('PDF downloaded successfully!', 'success'); // Optional
-            })
-            .catch((error) => {
-                element.classList.remove('pdf-generating-preview');
-                console.error('PDF generation error:', error);
-                ui.showAlert('Der opstod en fejl under PDF-generering. Prøv venligst igen.', 'danger');
-            })
-            .finally(() => { // Re-enable button and restore text in both cases
-                downloadBtn.disabled = false;
-                downloadBtn.innerHTML = originalBtnText;
-            });
+        setTimeout(() => {
+            const opt = {
+                margin: [5, 5, 5, 5],
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    logging: false,
+                    dpi: 192,
+                    letterRendering: true,
+                    useCORS: true
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            html2pdf().from(element).set(opt).save()
+                .then(() => {
+                    // ui.showAlert('PDF downloaded successfully!', 'success'); // Optional
+                })
+                .catch((error) => {
+                    console.error('PDF generation error:', error);
+                    ui.showAlert('Der opstod en fejl under PDF-generering. Prøv venligst igen.', 'danger');
+                })
+                .finally(() => {
+                    element.classList.remove('pdf-generating-preview');
+                    this.setZoom(originalZoom);
+                    downloadBtn.disabled = false;
+                    downloadBtn.innerHTML = originalBtnHTML;
+                });
+        }, 100);
     },
 
     attachEventListeners() {
@@ -689,7 +711,7 @@ const editor = {
         }, { signal });
 
         this.controlsContainer.addEventListener('click', (e) => {
-            const button = e.target.closest('[data-action]');
+            const button = e.target.closest('button[data-action]');
             if (!button) return;
             const { action, listName, id } = button.dataset;
 
@@ -719,7 +741,7 @@ const editor = {
                 const file = inputElement.files[0];
                 const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                 if (!allowedTypes.includes(file.type)) {
-                    ui.showAlert('Unsupported file type. Please choose a JPG, PNG, GIF, or WEBP image.', 'danger');
+                    ui.showAlert('Ikke-understøttet filtype. Vælg venligst et JPG, PNG, GIF, eller WEBP billede.', 'danger'); // Translated
                     inputElement.value = '';
                     return;
                 }
@@ -828,10 +850,25 @@ const editor = {
             }
         }, { signal });
 
-        // PDF Download Button
+        // Editor Header Buttons
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         if (downloadPdfBtn) {
-            downloadPdfBtn.addEventListener('click', this.handleDownloadPdf.bind(this), { signal: this.eventController.signal });
+            downloadPdfBtn.addEventListener('click', this.handleDownloadPdf.bind(this), { signal });
+        }
+
+        const printBtn = document.getElementById('print-btn');
+        if (printBtn) {
+            printBtn.addEventListener('click', this.handlePrint.bind(this), { signal });
+        }
+
+        const zoomInBtn = document.getElementById('zoom-in-btn');
+        if (zoomInBtn) {
+            zoomInBtn.addEventListener('click', this.zoomIn.bind(this), { signal });
+        }
+
+        const zoomOutBtn = document.getElementById('zoom-out-btn');
+        if (zoomOutBtn) {
+            zoomOutBtn.addEventListener('click', this.zoomOut.bind(this), { signal });
         }
     }
 };
