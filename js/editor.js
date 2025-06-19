@@ -593,9 +593,11 @@ const editor = {
     },
 
     handlePrint() {
-        // Add a class to the body for print-specific styles from cv-templates.css
+        const originalTitle = document.title;
+        document.title = this.doc.title || 'CV'; // Temporarily set document title
+
         document.body.classList.add('print-active');
-        this.previewContainer.classList.add('pdf-generating-preview'); // Use same class as PDF for consistency
+        this.previewContainer.classList.add('pdf-generating-preview');
 
         const originalZoom = this.currentZoom;
         this.setZoom(100);
@@ -605,6 +607,7 @@ const editor = {
             this.setZoom(originalZoom);
             this.previewContainer.classList.remove('pdf-generating-preview');
             document.body.classList.remove('print-active');
+            document.title = originalTitle; // Restore original title
         }, 100);
     },
 
@@ -846,6 +849,7 @@ const editor = {
                 this.doc.content.sectionOrder = newOrder;
                 this.markUnsaved();
                 this.saveAndUpdate();
+                this.renderCvPreview(); // Ensure CV preview updates with new section order
                 draggedItem = null;
             }
         }, { signal });
