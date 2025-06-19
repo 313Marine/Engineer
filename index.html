@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Engineer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700&family=Montserrat:wght@400;700&family=Lato&family=Roboto:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/cv-templates.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="container">
+            <a href="#/dashboard" class="logo-link"><h1 class="logo">CV Engineer</h1></a>
+            <nav class="main-nav">
+                <a href="#/dashboard" aria-label="Gå til dashboard">Dashboard</a>
+                <a href="#/templates" aria-label="Vælg en ny skabelon">Skabeloner</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="dashboard-view" class="view">
+            <div class="dashboard-header">
+                 <h2>Dashboard</h2>
+                 <a href="#/templates" class="btn btn-primary"><i class="fas fa-plus"></i> Opret Nyt CV</a>
+            </div>
+            <div id="document-grid" class="document-grid"></div>
+        </div>
+
+        <div id="templates-view" class="view">
+            <div class="templates-header">
+                <div>
+                    <h2>Vælg en Skabelon</h2>
+                    <p>Start et nyt CV, eller anvend en ny skabelon på dit nuværende.</p>
+                </div>
+                <div class="template-preview-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="preview-mode-toggle">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Forhåndsvis med dit indhold</span>
+                    </label>
+                </div>
+            </div>
+            <div id="template-grid" class="template-grid"></div>
+        </div>
+
+        <div id="editor-view" class="view">
+            <div class="editor-header">
+                <input type="text" id="doc-title-input" class="doc-title-input" value="Dokumenttitel" aria-label="Dokumentets titel">
+                <div class="editor-actions">
+                    <div class="zoom-controls">
+                        <button id="zoom-out-btn" class="btn btn-secondary zoom-btn" aria-label="Zoom ud">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <span id="zoom-level" class="zoom-level">100%</span>
+                        <button id="zoom-in-btn" class="btn btn-secondary zoom-btn" aria-label="Zoom ind">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                    </div>
+                    <button id="focus-mode-btn" class="btn btn-secondary" aria-label="Skift fokus tilstand">
+                        <i class="fas fa-expand"></i> Fokus
+                    </button>
+                    <button id="print-btn" class="btn btn-secondary" aria-label="Print dokument">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button id="download-pdf-btn" class="btn btn-primary" aria-label="Download dokument som PDF">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <div id="save-indicator" class="save-indicator" aria-live="polite">Alle ændringer er gemt</div>
+                </div>
+            </div>
+            <div id="editor-layout" class="editor-layout">
+                <aside id="editor-controls" class="editor-controls"></aside>
+                <section class="editor-preview-container">
+                    <div id="editor-preview" class="cv-preview"></div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="modal-content" class="modal-content" role="dialog" aria-modal="true">
+            <button id="modal-close-btn" class="modal-close-btn" aria-label="Luk dialogboks">&times;</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

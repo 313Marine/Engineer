@@ -1,0 +1,88 @@
+/* --- Global Design System --- */
+:root {
+    --primary-color: #2c3e50; /* Midnight Blue */
+    --primary-color-dark: #1a252f;
+    --secondary-color: #ecf0f1; /* Clouds */
+    --accent-color: #1abc9c; /* Turquoise */
+    --danger-color: #e74c3c; /* Alizarin */
+    --warning-color: #f39c12; /* Orange */
+    --text-color: #34495e; /* Wet Asphalt */
+    --text-color-light: #7f8c8d; /* Asbestos */
+    --background-color: #ffffff;
+    --border-color: #bdc3c7; /* Silver */
+    --shadow-color: rgba(0, 0, 0, 0.08);
+    --font-family-sans: 'Inter', sans-serif;
+    --font-family-serif: 'Lora', serif;
+    --preview-width: 210mm; /* A4 width */
+}
+
+/* --- Base & Reset Styles --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family-sans);
+    margin: 0;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    width: 95%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+}
+
+h2, h3 {
+    color: var(--primary-color);
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+/* --- Text Overflow Prevention --- */
+.cv-preview,
+.cv-preview * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.cv-preview h1,
+.cv-preview .job-title {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/* --- Template Layout Container Overflow Prevention --- */
+.cv-layout-grid,
+.cv-layout-sidebar,
+.cv-content-wrapper,
+.cv-header,
+.cv-main-content,
+.cv-sidebar {
+    overflow: hidden;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.cv-layout-grid {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cv-layout-sidebar {
+    width: 100%;
+    box-sizing: border-box;
+}
